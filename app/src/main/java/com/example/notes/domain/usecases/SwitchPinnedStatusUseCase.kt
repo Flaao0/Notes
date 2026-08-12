@@ -1,8 +1,12 @@
 package com.example.notes.domain.usecases
 
-class SwitchPinnedStatusUseCase {
+import com.example.notes.domain.repository.NoteRepository
+
+class SwitchPinnedStatusUseCase(
+    private val repository: NoteRepository
+) {
 
     operator fun invoke(id: Int) {
-        TODO()
+        repository.switchPinnedStatusUseCase(id)
     }
 }
