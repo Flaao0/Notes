@@ -42,6 +42,7 @@ class NotesViewModel: ViewModel() {
     private val scope = CoroutineScope(Dispatchers.IO)
 
     init {
+        addSomeNotes()
         query
             .onEach { query ->
                 _state.update { it.copy(query = query) }
@@ -64,14 +65,22 @@ class NotesViewModel: ViewModel() {
             .launchIn(scope)
     }
 
+    // TODO: don't forget to remove it
+    private fun addSomeNotes() {
+        repeat(50) {
+            addNoteUseCase(title = "Title$it", content = "Content$it")
+        }
+    }
+
     fun processCommand(command: NotesCommand) {
         when (command) {
             is NotesCommand.Delete -> {
                 deleteNoteUseCase(command.id)
             }
             is NotesCommand.EditNote -> {
-                val title = command.note.title
-                editNoteUseCase(command.note.copy(title = "$title edited"))
+                val note = getNoteUseCase(id = command.note.id)
+                val title = note.title
+                editNoteUseCase(note.copy(title = "$title edited"))
             }
             is NotesCommand.InputSearchQuery -> {
                 query.update {

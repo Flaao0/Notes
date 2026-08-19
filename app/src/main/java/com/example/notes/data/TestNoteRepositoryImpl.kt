@@ -13,9 +13,17 @@ object TestNoteRepositoryImpl : NoteRepository {
 
     val notesListFlow = MutableStateFlow<List<Note>>(listOf())
 
-    override fun addNote(note: Note) {
-        notesListFlow.update {
-            it + note
+    override fun addNote(title: String, content: String) {
+        notesListFlow.update { oldList ->
+            val note = Note(
+                id = oldList.size,
+                title = title,
+                content = content,
+                updatedAt = System.currentTimeMillis(),
+                isPinned = false
+            )
+
+            oldList + note
         }
     }
 
@@ -52,7 +60,7 @@ object TestNoteRepositoryImpl : NoteRepository {
     }
 
     override fun searchNote(query: String): Flow<List<Note>> {
-        return notesListFlow.map {oldList ->
+        return notesListFlow.map { oldList ->
             oldList.filter {
                 it.title.contains(query) || it.content.contains(query)
             }
