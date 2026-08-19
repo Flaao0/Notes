@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 
-class TestNoteRepositoryImpl : NoteRepository {
+object TestNoteRepositoryImpl : NoteRepository {
 
     val notesListFlow = MutableStateFlow<List<Note>>(listOf())
 
