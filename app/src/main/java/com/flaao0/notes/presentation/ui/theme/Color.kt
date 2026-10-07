@@ -1,4 +1,4 @@
-package com.flaao0.notes.ui.theme
+package com.flaao0.notes.presentation.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
