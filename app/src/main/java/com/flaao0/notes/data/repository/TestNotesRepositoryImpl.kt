@@ -4,9 +4,10 @@ import com.flaao0.notes.domain.entity.Note
 import com.flaao0.notes.domain.repository.NotesRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 
-class TestNotesRepositoryImpl : NotesRepository {
+object TestNotesRepositoryImpl : NotesRepository {
 
     private val notesListFlow = MutableStateFlow<List<Note>>(listOf())
 
@@ -45,7 +46,11 @@ class TestNotesRepositoryImpl : NotesRepository {
     }
 
     override fun searchNote(query: String): Flow<List<Note>> {
-        TODO("Not yet implemented")
+        return notesListFlow.map {
+            it.filter {note ->
+                note.title.contains(query) || note.content.contains(query)
+            }
+        }
     }
 
     override fun switchPinnedStatus(noteId: Int) {
