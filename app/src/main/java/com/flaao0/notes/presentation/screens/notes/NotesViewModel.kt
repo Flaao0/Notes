@@ -37,6 +37,8 @@ class NotesViewModel: ViewModel() {
     private val query = MutableStateFlow("")
 
     init {
+        addNotes()
+
         viewModelScope.launch {
             query.flatMapLatest {
                 if (it.isBlank()) {
@@ -58,17 +60,24 @@ class NotesViewModel: ViewModel() {
         }
     }
 
+    // TODO
+    private fun addNotes() {
+        repeat(50) {
+            addNoteUseCase(title = "Title №$it", content = "Content №$it")
+        }
+    }
+
     fun processCommand(command: NotesCommand) {
         when (command) {
             is NotesCommand.DeleteNote -> {
                 deleteNoteUseCase(noteId = command.noteId)
             }
             is NotesCommand.EditNote -> {
-                val note = command.note
+                val note = getNoteUseCase(command.note.id)
                 editNoteUseCase(note = note.copy(title = "${note.title} editable"))
             }
             is NotesCommand.InputSearchQuery -> {
-
+                query.update { command.query.trim() }
             }
             is NotesCommand.SwitchPinnedStatus -> {
                 switchPinnedStatusUseCase(noteId = command.noteId)
