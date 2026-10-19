@@ -16,10 +16,11 @@ import com.flaao0.notes.domain.entity.Note
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class NotesViewModel: ViewModel() {
+class NotesViewModel : ViewModel() {
 
     private val repository = TestNotesRepositoryImpl
 
@@ -40,23 +41,26 @@ class NotesViewModel: ViewModel() {
         addNotes()
 
         viewModelScope.launch {
-            query.flatMapLatest {
-                if (it.isBlank()) {
-                    getAllNotesUseCase()
-                } else {
-                    searchNoteUseCase(query.value)
+            query.onEach {
+                _state.update {
+                    it.copy(query = query.value)
                 }
-            }.collect {
-                val pinnedNotes = it.filter {note -> note.isPinned }
-                val otherNotes = it.filter {note -> !note.isPinned }
+            }.flatMapLatest {
+                    if (it.isBlank()) {
+                        getAllNotesUseCase()
+                    } else {
+                        searchNoteUseCase(query.value)
+                    }
+                }.collect {
+                    val pinnedNotes = it.filter { note -> note.isPinned }
+                    val otherNotes = it.filter { note -> !note.isPinned }
 
-                _state.update {notesState ->
-                    notesState.copy(
-                        pinnedNotes = pinnedNotes,
-                        otherNotes = otherNotes
-                    )
+                    _state.update { notesState ->
+                        notesState.copy(
+                            pinnedNotes = pinnedNotes, otherNotes = otherNotes
+                        )
+                    }
                 }
-            }
         }
     }
 
@@ -72,13 +76,16 @@ class NotesViewModel: ViewModel() {
             is NotesCommand.DeleteNote -> {
                 deleteNoteUseCase(noteId = command.noteId)
             }
+
             is NotesCommand.EditNote -> {
                 val note = getNoteUseCase(command.note.id)
                 editNoteUseCase(note = note.copy(title = "${note.title} editable"))
             }
+
             is NotesCommand.InputSearchQuery -> {
                 query.update { command.query.trim() }
             }
+
             is NotesCommand.SwitchPinnedStatus -> {
                 switchPinnedStatusUseCase(noteId = command.noteId)
             }
@@ -88,15 +95,15 @@ class NotesViewModel: ViewModel() {
 
 sealed interface NotesCommand {
 
-    data class InputSearchQuery(val query: String): NotesCommand
+    data class InputSearchQuery(val query: String) : NotesCommand
 
-    data class SwitchPinnedStatus(val noteId: Int): NotesCommand
+    data class SwitchPinnedStatus(val noteId: Int) : NotesCommand
 
     // Temp
 
-    data class EditNote(val note: Note): NotesCommand
+    data class EditNote(val note: Note) : NotesCommand
 
-    data class DeleteNote(val noteId: Int): NotesCommand
+    data class DeleteNote(val noteId: Int) : NotesCommand
 }
 
 data class NotesScreenState(
