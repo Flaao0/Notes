@@ -33,7 +33,10 @@ fun NotesScreen(
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
             ) {
 
-                items(state.pinnedNotes) {note ->
+                items(
+                    state.pinnedNotes,
+                    key = {it.id}
+                ) {note ->
                     NoteCard(note = note) {
                         viewModel.processCommand(NotesCommand.SwitchPinnedStatus(it.id))
                     }
@@ -41,7 +44,10 @@ fun NotesScreen(
             }
         }
 
-        items(state.otherNotes) {note ->
+        items(
+            state.otherNotes,
+            key = {it.id}
+        ) {note ->
             NoteCard(note = note) {
                 viewModel.processCommand(NotesCommand.SwitchPinnedStatus(it.id))
             }
