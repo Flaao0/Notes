@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -29,6 +30,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -53,8 +55,7 @@ fun NotesScreen(
     val state by viewModel.state.collectAsState()
 
     Scaffold(
-        modifier = modifier,
-        floatingActionButton = {
+        modifier = modifier, floatingActionButton = {
             FloatingActionButton(
                 onClick = onAddNoteClick,
                 contentColor = MaterialTheme.colorScheme.onPrimary,
@@ -62,12 +63,10 @@ fun NotesScreen(
                 shape = CircleShape
             ) {
                 Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Add note"
+                    imageVector = Icons.Default.Add, contentDescription = "Add note"
                 )
             }
-        }
-    ) {
+        }) {
         LazyColumn(
             contentPadding = it
         ) {
@@ -96,44 +95,76 @@ fun NotesScreen(
                 Spacer(modifier.height(24.dp))
             }
 
-            item {
-                Subtitle(
-                    modifier = modifier.padding(horizontal = 24.dp), text = "Закрепленные"
-                )
-            }
+            if (state.pinnedNotes.isNotEmpty()) {
+                item {
+                    Subtitle(
+                        modifier = modifier.padding(horizontal = 24.dp), text = "Закрепленные"
+                    )
+                }
 
-            item {
-                Spacer(modifier.height(16.dp))
-            }
+                item {
+                    Spacer(modifier.height(16.dp))
+                }
 
-            item {
-                LazyRow(
-                    modifier = modifier,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = PaddingValues(horizontal = 24.dp)
-                ) {
-                    itemsIndexed(
-                        items = state.pinnedNotes, key = { _, note -> note.id }) { index, note ->
-                        NoteCard(
-                            modifier = modifier.widthIn(max = 160.dp),
-                            note = note,
-                            color = PinnedNotesColors[index % PinnedNotesColors.size],
-                            onNoteClick = onNoteClick,
-                            onLongClick = {
-                                viewModel.processCommand(NotesCommand.SwitchPinnedStatus(note.id))
-                            })
+                item {
+                    LazyRow(
+                        modifier = modifier,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        contentPadding = PaddingValues(horizontal = 24.dp)
+                    ) {
+                        itemsIndexed(
+                            items = state.pinnedNotes,
+                            key = { _, note -> note.id }) { index, note ->
+                            NoteCard(
+                                modifier = modifier.widthIn(max = 160.dp),
+                                note = note,
+                                color = PinnedNotesColors[index % PinnedNotesColors.size],
+                                onNoteClick = onNoteClick,
+                                onLongClick = {
+                                    viewModel.processCommand(NotesCommand.SwitchPinnedStatus(note.id))
+                                })
+                        }
                     }
+                }
+
+                item {
+                    Spacer(modifier.height(24.dp))
                 }
             }
 
-            item {
-                Spacer(modifier.height(24.dp))
-            }
-
-            item {
-                Subtitle(
-                    modifier = modifier.padding(horizontal = 24.dp), text = "Остальные"
-                )
+            if (state.pinnedNotes.isEmpty() && state.otherNotes.isEmpty()) {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillParentMaxWidth()
+                            .padding(top = 200.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text(
+                                text = "У вас пока нет заметок",
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                fontWeight = FontWeight.Bold,
+                            )
+                            Text(
+                                text = "Нажмите +, чтобы создать",
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+            } else if (state.otherNotes.isNotEmpty()) {
+                item {
+                    val titleText =
+                        if (state.pinnedNotes.isNotEmpty()) "Остальные" else "Все заметки"
+                    Subtitle(
+                        modifier = Modifier.padding(horizontal = 24.dp),
+                        text = titleText
+                    )
+                }
             }
 
             item {
@@ -177,8 +208,8 @@ private fun SearchBar(
 ) {
     TextField(
         modifier = modifier.border(
-                1.dp, color = MaterialTheme.colorScheme.onSurfaceVariant, RoundedCornerShape(10.dp)
-            ),
+            1.dp, color = MaterialTheme.colorScheme.onSurfaceVariant, RoundedCornerShape(10.dp)
+        ),
         value = query,
         onValueChange = onQueryChanged,
         colors = TextFieldDefaults.colors(
@@ -235,7 +266,8 @@ private fun NoteCard(
             }, onLongClick = {
                 onLongClick(note)
             })
-            .padding(16.dp)) {
+            .padding(16.dp)
+    ) {
         Text(
             text = note.title,
             color = MaterialTheme.colorScheme.onSurface,
