@@ -14,11 +14,15 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -41,122 +45,120 @@ import com.flaao0.notes.presentation.utils.DateFormatter
 @Composable
 fun NotesScreen(
     modifier: Modifier = Modifier,
-    viewModel: NotesViewModel = viewModel()
+    viewModel: NotesViewModel = viewModel(),
+    onNoteClick: (Note) -> Unit,
+    onAddNoteClick: () -> Unit
 ) {
 
     val state by viewModel.state.collectAsState()
 
-    LazyColumn(
-        modifier = modifier
-            .padding(top = 48.dp),
+    Scaffold(
+        modifier = modifier,
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = onAddNoteClick,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+                containerColor = MaterialTheme.colorScheme.primary,
+                shape = CircleShape
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Add note"
+                )
+            }
+        }
     ) {
-        item {
-            Title(
-                modifier = modifier
-                    .padding(horizontal = 24.dp),
-            )
-        }
-
-        item {
-            Spacer(modifier.height(16.dp))
-        }
-
-        item {
-            SearchBar(
-                modifier = modifier
-                    .padding(horizontal = 24.dp)
-                    .fillMaxWidth(),
-                query = state.query,
-            ) {
-                viewModel.processCommand(NotesCommand.InputSearchQuery(it))
+        LazyColumn(
+            contentPadding = it
+        ) {
+            item {
+                Title(
+                    modifier = modifier.padding(horizontal = 24.dp),
+                )
             }
-        }
 
-        item {
-            Spacer(modifier.height(24.dp))
-        }
+            item {
+                Spacer(modifier.height(16.dp))
+            }
 
-        item {
-            Subtitle(
-                modifier = modifier
-                    .padding(horizontal = 24.dp),
-                text = "Закрепленные"
-            )
-        }
-
-        item {
-            Spacer(modifier.height(16.dp))
-        }
-
-        item {
-            LazyRow(
-                modifier = modifier,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(horizontal = 24.dp)
-            ) {
-                itemsIndexed(
-                    items = state.pinnedNotes,
-                    key = {_, note -> note.id }
-                ) { index, note ->
-                    NoteCard(
-                        modifier = modifier.widthIn(max = 160.dp),
-                        note = note,
-                        color = PinnedNotesColors[index % PinnedNotesColors.size],
-                        onNoteClick = {
-                            viewModel.processCommand(NotesCommand.SwitchPinnedStatus(note.id))
-                        },
-                        onDoubleClick = {
-                            viewModel.processCommand(NotesCommand.DeleteNote(note.id))
-                        },
-                        onLongClick = {
-                            viewModel.processCommand(NotesCommand.EditNote(note))
-                        }
-                    )
+            item {
+                SearchBar(
+                    modifier = modifier
+                        .padding(horizontal = 24.dp)
+                        .fillMaxWidth(),
+                    query = state.query,
+                ) {
+                    viewModel.processCommand(NotesCommand.InputSearchQuery(it))
                 }
             }
-        }
 
-        item {
-            Spacer(modifier.height(24.dp))
-        }
+            item {
+                Spacer(modifier.height(24.dp))
+            }
 
-        item {
-            Subtitle(
-                modifier = modifier
-                    .padding(horizontal = 24.dp),
-                text = "Остальные"
-            )
-        }
+            item {
+                Subtitle(
+                    modifier = modifier.padding(horizontal = 24.dp), text = "Закрепленные"
+                )
+            }
 
-        item {
-            Spacer(modifier.height(16.dp))
-        }
+            item {
+                Spacer(modifier.height(16.dp))
+            }
 
-        itemsIndexed(
-            items = state.otherNotes,
-            key = {_, note -> note.id }
-        ) {index, note ->
-            NoteCard(
-                modifier = modifier
-                    .padding(horizontal = 24.dp)
-                    .fillMaxWidth(),
-                note = note,
-                color = OtherNotesColors[index % OtherNotesColors.size],
-                onNoteClick = {
-                    viewModel.processCommand(NotesCommand.SwitchPinnedStatus(note.id))
-                },
-                onDoubleClick = {
-                    viewModel.processCommand(NotesCommand.DeleteNote(note.id))
-                },
-                onLongClick = {
-                    viewModel.processCommand(NotesCommand.EditNote(note))
+            item {
+                LazyRow(
+                    modifier = modifier,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(horizontal = 24.dp)
+                ) {
+                    itemsIndexed(
+                        items = state.pinnedNotes, key = { _, note -> note.id }) { index, note ->
+                        NoteCard(
+                            modifier = modifier.widthIn(max = 160.dp),
+                            note = note,
+                            color = PinnedNotesColors[index % PinnedNotesColors.size],
+                            onNoteClick = onNoteClick,
+                            onLongClick = {
+                                viewModel.processCommand(NotesCommand.SwitchPinnedStatus(note.id))
+                            })
+                    }
                 }
-            )
+            }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            item {
+                Spacer(modifier.height(24.dp))
+            }
+
+            item {
+                Subtitle(
+                    modifier = modifier.padding(horizontal = 24.dp), text = "Остальные"
+                )
+            }
+
+            item {
+                Spacer(modifier.height(16.dp))
+            }
+
+            itemsIndexed(
+                items = state.otherNotes, key = { _, note -> note.id }) { index, note ->
+                NoteCard(
+                    modifier = modifier
+                        .padding(horizontal = 24.dp)
+                        .fillMaxWidth(),
+                    note = note,
+                    color = OtherNotesColors[index % OtherNotesColors.size],
+                    onNoteClick = onNoteClick,
+                    onLongClick = {
+                        viewModel.processCommand(NotesCommand.SwitchPinnedStatus(note.id))
+                    })
+
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
         }
-
     }
+
 
 }
 
@@ -165,25 +167,17 @@ private fun Title(
     modifier: Modifier = Modifier
 ) {
     Text(
-        modifier = modifier,
-        text = "Заметки",
-        fontWeight = FontWeight.Bold,
-        fontSize = 24.sp
+        modifier = modifier, text = "Заметки", fontWeight = FontWeight.Bold, fontSize = 24.sp
     )
 }
 
 @Composable
 private fun SearchBar(
-    modifier: Modifier = Modifier,
-    query: String,
-    onQueryChanged: (String) -> Unit
+    modifier: Modifier = Modifier, query: String, onQueryChanged: (String) -> Unit
 ) {
     TextField(
-        modifier = modifier
-            .border(
-                1.dp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                RoundedCornerShape(10.dp)
+        modifier = modifier.border(
+                1.dp, color = MaterialTheme.colorScheme.onSurfaceVariant, RoundedCornerShape(10.dp)
             ),
         value = query,
         onValueChange = onQueryChanged,
@@ -213,8 +207,7 @@ private fun SearchBar(
 
 @Composable
 private fun Subtitle(
-    modifier: Modifier = Modifier,
-    text: String
+    modifier: Modifier = Modifier, text: String
 ) {
     Text(
         modifier = modifier,
@@ -231,26 +224,18 @@ private fun NoteCard(
     color: Color,
     onNoteClick: (Note) -> Unit,
     onLongClick: (Note) -> Unit,
-    onDoubleClick: (Note) -> Unit,
 ) {
     Column(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
             .background(color)
-            .combinedClickable(
-                onClick = {
-                    onNoteClick(note)
-                },
-                onLongClick = {
-                    onLongClick(note)
-                },
-                onDoubleClick = {
-                    onDoubleClick(note)
-                }
-            )
-            .padding(16.dp)
-    ) {
+            .combinedClickable(onClick = {
+                onNoteClick(note)
+            }, onLongClick = {
+                onLongClick(note)
+            })
+            .padding(16.dp)) {
         Text(
             text = note.title,
             color = MaterialTheme.colorScheme.onSurface,
