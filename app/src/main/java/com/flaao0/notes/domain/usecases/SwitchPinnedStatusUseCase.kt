@@ -5,7 +5,7 @@ import com.flaao0.notes.domain.repository.NotesRepository
 class SwitchPinnedStatusUseCase(
     private val repository: NotesRepository
 ) {
-    operator fun invoke(noteId: Int) {
+    suspend operator fun invoke(noteId: Int) {
         repository.switchPinnedStatus(noteId)
     }
 }

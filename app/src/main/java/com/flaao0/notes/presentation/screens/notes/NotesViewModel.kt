@@ -66,13 +66,17 @@ class NotesViewModel : ViewModel() {
 
     // TODO
     private fun addNotes() {
-        repeat(50) {
+        viewModelScope.launch {
+          repeat(50) {
             addNoteUseCase(title = "Title №$it", content = "Content №$it")
         }
+        }
+
     }
 
     fun processCommand(command: NotesCommand) {
-        when (command) {
+        viewModelScope.launch {
+            when (command) {
             is NotesCommand.DeleteNote -> {
                 deleteNoteUseCase(noteId = command.noteId)
             }
@@ -90,6 +94,8 @@ class NotesViewModel : ViewModel() {
                 switchPinnedStatusUseCase(noteId = command.noteId)
             }
         }
+        }
+
     }
 }
 
