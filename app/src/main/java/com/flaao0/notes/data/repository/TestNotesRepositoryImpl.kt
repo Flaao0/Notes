@@ -54,7 +54,7 @@ object TestNotesRepositoryImpl : NotesRepository {
         }
     }
 
-    override suspend fun searchNote(query: String): Flow<List<Note>> {
+    override fun searchNote(query: String): Flow<List<Note>> {
         return notesListFlow.map {
             it.filter {note ->
                 note.title.contains(query) || note.content.contains(query)

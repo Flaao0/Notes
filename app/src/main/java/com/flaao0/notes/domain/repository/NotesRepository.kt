@@ -20,7 +20,7 @@ interface NotesRepository {
 
     suspend fun deleteNote(noteId: Int)
 
-    suspend fun searchNote(query: String): Flow<List<Note>>
+    fun searchNote(query: String): Flow<List<Note>>
 
     suspend fun switchPinnedStatus(noteId: Int)
 }
