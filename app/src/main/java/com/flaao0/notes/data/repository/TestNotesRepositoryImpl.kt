@@ -9,11 +9,28 @@ import kotlinx.coroutines.flow.update
 
 object TestNotesRepositoryImpl : NotesRepository {
 
-    private val notesListFlow = MutableStateFlow<List<Note>>(listOf())
+    private val testData = mutableListOf<Note>().apply {
+        repeat(10) {
+            add(
+                Note(
+                    it,
+                    title = "title$it",
+                    content = "content$it",
+                    updatedAt = System.currentTimeMillis(),
+                    false
+                )
+            )
+        }
+    }
 
+    private val notesListFlow = MutableStateFlow<List<Note>>(testData)
 
-
-    override suspend fun addNote(title: String, content: String, updatedAt: Long, isPinned: Boolean) {
+    override suspend fun addNote(
+        title: String,
+        content: String,
+        updatedAt: Long,
+        isPinned: Boolean
+    ) {
         notesListFlow.update {
             val note = Note(
                 id = it.size,
@@ -56,7 +73,7 @@ object TestNotesRepositoryImpl : NotesRepository {
 
     override fun searchNote(query: String): Flow<List<Note>> {
         return notesListFlow.map {
-            it.filter {note ->
+            it.filter { note ->
                 note.title.contains(query) || note.content.contains(query)
             }
         }
