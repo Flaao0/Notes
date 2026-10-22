@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import com.flaao0.notes.presentation.screens.creation.CreateNoteScreen
 import com.flaao0.notes.presentation.screens.notes.NotesScreen
 import com.flaao0.notes.presentation.ui.theme.NotesTheme
 
@@ -14,14 +15,16 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             NotesTheme {
-                NotesScreen(
-                    onNoteClick = {
-                        Log.d("MainActivity", "on note click $it")
-                    },
-                    onAddNoteClick = {
-                        Log.d("MainActivity", "on add note click")
-                    }
-                )
+//                NotesScreen(
+//                    onNoteClick = {
+//                        Log.d("MainActivity", "on note click $it")
+//                    },
+//                    onAddNoteClick = {
+//                        Log.d("MainActivity", "on add note click")
+//                    }
+//                )
+
+                CreateNoteScreen()
             }
         }
     }
