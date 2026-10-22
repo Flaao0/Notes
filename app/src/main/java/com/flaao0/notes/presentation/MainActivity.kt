@@ -6,7 +6,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.flaao0.notes.presentation.screens.creation.CreateNoteScreen
-import com.flaao0.notes.presentation.screens.notes.NotesScreen
 import com.flaao0.notes.presentation.ui.theme.NotesTheme
 
 class MainActivity : ComponentActivity() {
@@ -24,7 +23,9 @@ class MainActivity : ComponentActivity() {
 //                    }
 //                )
 
-                CreateNoteScreen()
+                CreateNoteScreen() {
+                    Log.d("CreateNoteScreen", "finished")
+                }
             }
         }
     }
