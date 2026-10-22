@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class CreateNoteViewModel(
+class EditNoteViewModel(
     private val noteId: Int
 ) : ViewModel() {
 
@@ -107,7 +107,7 @@ sealed interface EditNoteCommand {
 
     data class InputContent(val content: String) : EditNoteCommand
 
-    data class DeleteNote(val noteId: Int): EditNoteCommand
+    data object DeleteNote: EditNoteCommand
 
     data object Save : EditNoteCommand
 
