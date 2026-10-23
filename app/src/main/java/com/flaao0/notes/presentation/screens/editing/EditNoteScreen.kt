@@ -29,7 +29,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.flaao0.notes.presentation.screens.editing.EditNoteCommand.*
 import com.flaao0.notes.presentation.utils.DateFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -96,7 +95,7 @@ fun EditNoteScreen(
                             .fillMaxWidth()
                             .padding(horizontal = 8.dp),
                         value = currentState.note.title,
-                        onValueChange = { viewmodel.processCommand(InputContent(it)) },
+                        onValueChange = { viewmodel.processCommand(EditNoteCommand.InputTitle(it)) },
                         colors = TextFieldDefaults.colors(
                             focusedContainerColor = Color.Transparent,
                             unfocusedContainerColor = Color.Transparent,
@@ -131,7 +130,7 @@ fun EditNoteScreen(
                             .padding(horizontal = 8.dp)
                             .weight(1f),
                         value = currentState.note.content,
-                        onValueChange = {viewmodel.processCommand(InputContent(it))},
+                        onValueChange = {viewmodel.processCommand(EditNoteCommand.InputContent(it))},
                         colors = TextFieldDefaults.colors(
                             focusedContainerColor = Color.Transparent,
                             unfocusedContainerColor = Color.Transparent,
