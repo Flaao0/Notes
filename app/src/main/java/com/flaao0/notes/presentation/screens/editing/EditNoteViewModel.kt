@@ -74,8 +74,7 @@ class EditNoteViewModel(
                 viewModelScope.launch {
                     _state.update { oldState ->
                         if (oldState is EditNoteState.Editing) {
-                            val note = oldState.note
-                            editNoteUseCase(note)
+                            editNoteUseCase(oldState.note)
                             EditNoteState.Finished
                         } else {
                             oldState
@@ -88,8 +87,7 @@ class EditNoteViewModel(
                 viewModelScope.launch {
                     _state.update { oldState ->
                         if (oldState is EditNoteState.Editing) {
-                            val note = oldState.note
-                            deleteNoteUseCase(note.id)
+                            deleteNoteUseCase(oldState.note.id)
                             EditNoteState.Finished
                         } else {
                             oldState
