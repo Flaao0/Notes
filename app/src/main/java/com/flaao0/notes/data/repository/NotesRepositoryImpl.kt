@@ -1,8 +1,8 @@
-package com.flaao0.notes
+package com.flaao0.notes.data.repository
 
 import android.content.Context
-import com.flaao0.notes.data.NotesDatabase
-import com.flaao0.notes.data.entity.NoteDbModel
+import com.flaao0.notes.data.local.NotesDatabase
+import com.flaao0.notes.data.local.entity.NoteDbModel
 import com.flaao0.notes.data.mappers.toDbModel
 import com.flaao0.notes.data.mappers.toEntity
 import com.flaao0.notes.domain.entity.Note

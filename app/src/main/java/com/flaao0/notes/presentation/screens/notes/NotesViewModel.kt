@@ -5,7 +5,7 @@ package com.flaao0.notes.presentation.screens.notes
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.flaao0.notes.NotesRepositoryImpl
+import com.flaao0.notes.data.repository.NotesRepositoryImpl
 import com.flaao0.notes.domain.entity.Note
 import com.flaao0.notes.domain.usecases.GetAllNotesUseCase
 import com.flaao0.notes.domain.usecases.SearchNoteUseCase

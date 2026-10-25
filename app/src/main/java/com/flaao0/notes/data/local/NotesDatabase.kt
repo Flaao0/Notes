@@ -1,10 +1,11 @@
-package com.flaao0.notes.data
+package com.flaao0.notes.data.local
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.flaao0.notes.data.entity.NoteDbModel
+import com.flaao0.notes.data.local.entity.NoteDbModel
+import com.flaao0.notes.data.local.dao.NotesDao
 
 
 @Database(

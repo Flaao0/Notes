@@ -3,7 +3,7 @@ package com.flaao0.notes.presentation.screens.creation
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.flaao0.notes.NotesRepositoryImpl
+import com.flaao0.notes.data.repository.NotesRepositoryImpl
 import com.flaao0.notes.domain.usecases.AddNoteUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

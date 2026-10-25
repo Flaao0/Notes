@@ -1,4 +1,4 @@
-package com.flaao0.notes.data.entity
+package com.flaao0.notes.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

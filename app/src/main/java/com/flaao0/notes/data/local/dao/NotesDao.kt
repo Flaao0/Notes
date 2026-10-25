@@ -1,10 +1,10 @@
-package com.flaao0.notes.data
+package com.flaao0.notes.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.flaao0.notes.data.entity.NoteDbModel
+import com.flaao0.notes.data.local.entity.NoteDbModel
 import kotlinx.coroutines.flow.Flow
 
 
