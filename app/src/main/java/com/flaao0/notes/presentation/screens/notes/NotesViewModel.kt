@@ -2,9 +2,10 @@
 
 package com.flaao0.notes.presentation.screens.notes
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.flaao0.notes.data.repository.TestNotesRepositoryImpl
+import com.flaao0.notes.data.repository.NotesRepositoryImpl
 import com.flaao0.notes.domain.entity.Note
 import com.flaao0.notes.domain.usecases.GetAllNotesUseCase
 import com.flaao0.notes.domain.usecases.SearchNoteUseCase
@@ -16,9 +17,11 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class NotesViewModel : ViewModel() {
+class NotesViewModel(
+    context: Context
+) : ViewModel() {
 
-    private val repository = TestNotesRepositoryImpl
+    private val repository = NotesRepositoryImpl.getInstance(context)
     private val getAllNotesUseCase = GetAllNotesUseCase(repository)
     private val searchNoteUseCase = SearchNoteUseCase(repository)
     private val switchPinnedStatusUseCase = SwitchPinnedStatusUseCase(repository)

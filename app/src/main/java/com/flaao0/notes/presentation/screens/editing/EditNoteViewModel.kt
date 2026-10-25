@@ -1,8 +1,9 @@
 package com.flaao0.notes.presentation.screens.editing
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.flaao0.notes.data.repository.TestNotesRepositoryImpl
+import com.flaao0.notes.data.repository.NotesRepositoryImpl
 import com.flaao0.notes.domain.entity.Note
 import com.flaao0.notes.domain.usecases.DeleteNoteUseCase
 import com.flaao0.notes.domain.usecases.EditNoteUseCase
@@ -13,10 +14,11 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class EditNoteViewModel(
-    private val noteId: Int
+    private val noteId: Int,
+    context: Context
 ) : ViewModel() {
 
-    private val repository = TestNotesRepositoryImpl
+    private val repository = NotesRepositoryImpl.getInstance(context)
 
     private val editNoteUseCase = EditNoteUseCase(repository)
     private val deleteNoteUseCase = DeleteNoteUseCase(repository)
