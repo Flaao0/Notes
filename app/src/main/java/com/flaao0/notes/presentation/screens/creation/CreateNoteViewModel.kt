@@ -1,24 +1,19 @@
 package com.flaao0.notes.presentation.screens.creation
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.flaao0.notes.data.repository.NotesRepositoryImpl
 import com.flaao0.notes.domain.usecases.AddNoteUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class CreateNoteViewModel(
-    context: Context
+@HiltViewModel
+class CreateNoteViewModel @Inject constructor(
+    private val addNoteUseCase: AddNoteUseCase
 ) : ViewModel() {
-
-    private val repository = NotesRepositoryImpl.getInstance(
-        context
-    )
-
-    private val addNoteUseCase = AddNoteUseCase(repository)
 
     private val _state = MutableStateFlow<CreateNoteState>(CreateNoteState.Create())
     val state = _state.asStateFlow()

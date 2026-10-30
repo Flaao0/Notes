@@ -1,6 +1,5 @@
 package com.flaao0.notes.presentation.navigation
 
-import android.content.Context
 import android.os.Bundle
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
