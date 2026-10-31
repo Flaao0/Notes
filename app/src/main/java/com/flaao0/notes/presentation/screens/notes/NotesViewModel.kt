@@ -2,29 +2,27 @@
 
 package com.flaao0.notes.presentation.screens.notes
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.flaao0.notes.data.repository.NotesRepositoryImpl
 import com.flaao0.notes.domain.entity.Note
 import com.flaao0.notes.domain.usecases.GetAllNotesUseCase
 import com.flaao0.notes.domain.usecases.SearchNoteUseCase
 import com.flaao0.notes.domain.usecases.SwitchPinnedStatusUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class NotesViewModel(
-    context: Context
+@HiltViewModel
+class NotesViewModel @Inject constructor(
+    private val getAllNotesUseCase: GetAllNotesUseCase,
+    private val searchNoteUseCase: SearchNoteUseCase,
+    private val switchPinnedStatusUseCase: SwitchPinnedStatusUseCase
 ) : ViewModel() {
-
-    private val repository = NotesRepositoryImpl.getInstance(context)
-    private val getAllNotesUseCase = GetAllNotesUseCase(repository)
-    private val searchNoteUseCase = SearchNoteUseCase(repository)
-    private val switchPinnedStatusUseCase = SwitchPinnedStatusUseCase(repository)
 
     private val _state = MutableStateFlow(NotesScreenState())
     val state = _state.asStateFlow()

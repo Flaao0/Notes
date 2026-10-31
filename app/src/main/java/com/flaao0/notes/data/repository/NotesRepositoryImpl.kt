@@ -11,10 +11,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class NotesRepositoryImpl private constructor(
-    context: Context
+    notesDatabase: NotesDatabase
 ): NotesRepository {
-
-    private val notesDatabase = NotesDatabase.getInstance(context)
     private val notesDao = notesDatabase.notesDao()
 
     override suspend fun addNote(
@@ -67,13 +65,13 @@ class NotesRepositoryImpl private constructor(
         private var instance: NotesRepositoryImpl? = null
         private val lock = Any()
 
-        fun getInstance(context: Context): NotesRepositoryImpl {
+        fun getInstance(notesDatabase: NotesDatabase): NotesRepositoryImpl {
             instance?.let { return it }
 
             synchronized(lock) {
                 instance?.let { return it }
 
-                return NotesRepositoryImpl(context).also {
+                return NotesRepositoryImpl(notesDatabase).also {
                     instance = it
                 }
             }
