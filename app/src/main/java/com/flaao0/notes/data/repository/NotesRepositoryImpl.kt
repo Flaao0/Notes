@@ -4,6 +4,7 @@ import com.flaao0.notes.data.local.dao.NotesDao
 import com.flaao0.notes.data.local.entity.NoteDbModel
 import com.flaao0.notes.data.mappers.toDbModel
 import com.flaao0.notes.data.mappers.toEntity
+import com.flaao0.notes.domain.entity.ContentItem
 import com.flaao0.notes.domain.entity.Note
 import com.flaao0.notes.domain.repository.NotesRepository
 import kotlinx.coroutines.flow.Flow
@@ -15,13 +16,14 @@ class NotesRepositoryImpl private constructor(
 
     override suspend fun addNote(
         title: String,
-        content: String,
+        content: List<ContentItem>,
         updatedAt: Long,
         isPinned: Boolean
     ) {
-        val noteDbModel = NoteDbModel(
+        val note = Note(
             0, title, content, updatedAt, isPinned
         )
+        val noteDbModel = note.toDbModel()
         notesDao.addNote(
             noteDbModel
         )

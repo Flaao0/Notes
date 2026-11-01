@@ -1,5 +1,6 @@
 package com.flaao0.notes.domain.repository
 
+import com.flaao0.notes.domain.entity.ContentItem
 import com.flaao0.notes.domain.entity.Note
 import kotlinx.coroutines.flow.Flow
 
@@ -7,7 +8,7 @@ interface NotesRepository {
 
     suspend fun addNote(
         title: String,
-        content: String,
+        content: List<ContentItem>,
         updatedAt: Long,
         isPinned: Boolean
     )
