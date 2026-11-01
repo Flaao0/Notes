@@ -2,6 +2,7 @@ package com.flaao0.notes.presentation.screens.editing
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.flaao0.notes.domain.entity.ContentItem
 import com.flaao0.notes.domain.entity.Note
 import com.flaao0.notes.domain.usecases.DeleteNoteUseCase
 import com.flaao0.notes.domain.usecases.EditNoteUseCase
@@ -49,8 +50,9 @@ class EditNoteViewModel @AssistedInject constructor(
             is EditNoteCommand.InputContent -> {
                 _state.update { oldState ->
                     if (oldState is EditNoteState.Editing) {
+                        val newContent = listOf(ContentItem.Text(command.content))
                         val newNote = oldState.note.copy(
-                            content = command.content
+                            content = newContent
                         )
                         oldState.copy(
                             note = newNote
@@ -126,7 +128,17 @@ sealed interface EditNoteState {
         val note: Note
     ) : EditNoteState {
         val isSaveEnabled: Boolean
-            get() = note.title.isNotBlank() && note.content.isNotBlank()
+            get() {
+                return when {
+                    note.title.isBlank() -> false
+                    note.content.isEmpty() -> false
+                    else -> {
+                        note.content.any {
+                            it !is ContentItem.Text || it.text.isNotBlank()
+                        }
+                    }
+                }
+            }
     }
 
     data object Finished : EditNoteState

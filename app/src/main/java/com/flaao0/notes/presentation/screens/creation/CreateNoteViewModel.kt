@@ -2,6 +2,7 @@ package com.flaao0.notes.presentation.screens.creation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.flaao0.notes.domain.entity.ContentItem
 import com.flaao0.notes.domain.usecases.AddNoteUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -55,7 +56,7 @@ class CreateNoteViewModel @Inject constructor(
                     _state.update { oldState ->
                         if (oldState is CreateNoteState.Create) {
                             val title = oldState.title
-                            val content = oldState.content
+                            val content = listOf(ContentItem.Text(oldState.content))
                             addNoteUseCase(title, content)
                             CreateNoteState.Finished
                         } else {

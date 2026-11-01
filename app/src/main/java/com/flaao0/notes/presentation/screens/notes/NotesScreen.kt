@@ -39,6 +39,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.flaao0.notes.domain.entity.ContentItem
 import com.flaao0.notes.domain.entity.Note
 import com.flaao0.notes.presentation.ui.theme.OtherNotesColors
 import com.flaao0.notes.presentation.ui.theme.PinnedNotesColors
@@ -286,13 +287,18 @@ private fun NoteCard(
 
         Spacer(modifier.height(24.dp))
 
-        Text(
-            text = note.content,
-            color = MaterialTheme.colorScheme.onSurface,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Medium,
-            maxLines = 3,
-            overflow = TextOverflow.Ellipsis
-        )
+        note.content.filterIsInstance<ContentItem.Text>()
+            .joinToString("\n")
+            { it.text }
+            .let {
+                Text(
+                    text = it,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
     }
 }

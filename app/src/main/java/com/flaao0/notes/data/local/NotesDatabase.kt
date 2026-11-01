@@ -9,11 +9,9 @@ import com.flaao0.notes.data.local.dao.NotesDao
 
 
 @Database(
-    entities = [NoteDbModel::class],
-    version = 1,
-    exportSchema = false
+    entities = [NoteDbModel::class], version = 2, exportSchema = false
 )
-abstract class NotesDatabase: RoomDatabase() {
+abstract class NotesDatabase : RoomDatabase() {
 
     abstract fun notesDao(): NotesDao
 
@@ -31,12 +29,13 @@ abstract class NotesDatabase: RoomDatabase() {
                 instance?.let { return it }
 
                 return Room.databaseBuilder(
-                    context = context,
-                    klass = NotesDatabase::class.java,
-                    name = "notes_db"
-                ).build().also {
-                    instance = it
-                }
+                    context = context, klass = NotesDatabase::class.java, name = "notes_db"
+                )
+                    .fallbackToDestructiveMigration(dropAllTables = true)
+                    .build()
+                    .also {
+                        instance = it
+                    }
             }
         }
     }
