@@ -1,5 +1,8 @@
 package com.flaao0.notes.presentation.screens.creation
 
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,6 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.flaao0.notes.presentation.ui.theme.CustomIcons
 import com.flaao0.notes.presentation.utils.DateFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,7 +44,16 @@ fun CreateNoteScreen(
 
     val state = viewModel.state.collectAsState()
 
+    val imagePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = {uri ->
+            Log.d("CreateNoteScreen", "imagePicker ${uri.toString()}")
+        }
+    )
+
     when (val currentState = state.value) {
+
+
         is CreateNoteState.Create -> {
             Scaffold(
                 topBar = {
@@ -62,6 +75,17 @@ fun CreateNoteScreen(
                                     },
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "Back"
+                            )
+                        },
+                        actions = {
+                            Icon(
+                                modifier = Modifier.padding(end = 24.dp)
+                                    .clickable {
+                                        imagePicker.launch("image/*")
+                                    },
+                                imageVector = CustomIcons.AddPhoto,
+                                contentDescription = "Добавить изображение",
+                                tint = MaterialTheme.colorScheme.onSurface,
                             )
                         },
                         colors = TopAppBarDefaults.topAppBarColors(
