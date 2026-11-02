@@ -70,4 +70,7 @@ dependencies {
     ksp(libs.hilt.android.compiler)
 
     implementation(libs.kotlinx.serialization.json)
+
+    implementation(libs.coil3.coil.compose)
+    implementation(libs.coil.network.okhttp)
 }
