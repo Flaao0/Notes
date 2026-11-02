@@ -28,12 +28,17 @@ class CreateNoteViewModel @Inject constructor(
             is CreateNoteCommand.InputContent -> {
                 _state.update { oldState ->
                     if (oldState is CreateNoteState.Create) {
-                        oldState.copy(
-                            content = command.content,
-                            isSaveEnabled = oldState.title.isNotBlank() && command.content.isNotBlank()
-                        )
+                        val newContent = oldState.content
+                            .mapIndexed { index, item ->
+                                if (index == command.index && item is ContentItem.Text) {
+                                    item.copy(text = command.content)
+                                } else {
+                                    item
+                                }
+                            }
+                        oldState.copy(content = newContent)
                     } else {
-                        CreateNoteState.Create(content = command.content)
+                        oldState
                     }
                 }
             }
@@ -43,20 +48,21 @@ class CreateNoteViewModel @Inject constructor(
                     if (oldState is CreateNoteState.Create) {
                         oldState.copy(
                             title = command.title,
-                            isSaveEnabled = command.title.isNotBlank() && oldState.content.isNotBlank()
                         )
                     } else {
-                        CreateNoteState.Create(title = command.title)
+                        oldState
                     }
                 }
             }
 
-            CreateNoteCommand.Save -> {
+            CreateNoteCommand.Save ->
                 viewModelScope.launch {
                     _state.update { oldState ->
                         if (oldState is CreateNoteState.Create) {
                             val title = oldState.title
-                            val content = listOf(ContentItem.Text(oldState.content))
+                            val content = oldState.content.filter {
+                                it !is ContentItem.Text || it.text.isNotBlank()
+                            }
                             addNoteUseCase(title, content)
                             CreateNoteState.Finished
                         } else {
@@ -65,6 +71,23 @@ class CreateNoteViewModel @Inject constructor(
                     }
                 }
 
+            is CreateNoteCommand.AddImage -> {
+                viewModelScope.launch {
+                    _state.update { oldState ->
+                        if (oldState is CreateNoteState.Create) {
+                            val newItems = oldState.content.toMutableList()
+                            val lastItem = newItems.last()
+                            if (lastItem is ContentItem.Text && lastItem.text.isBlank()) {
+                                newItems.removeAt(newItems.lastIndex)
+                            }
+                            newItems.add(ContentItem.Image(command.uri))
+                            newItems.add(ContentItem.Text(""))
+                            oldState.copy(content = newItems)
+                        } else {
+                            oldState
+                        }
+                    }
+                }
             }
         }
     }
@@ -74,7 +97,9 @@ sealed interface CreateNoteCommand {
 
     data class InputTitle(val title: String) : CreateNoteCommand
 
-    data class InputContent(val content: String) : CreateNoteCommand
+    data class InputContent(val content: String, val index: Int) : CreateNoteCommand
+
+    data class AddImage(val uri: String) : CreateNoteCommand
 
     data object Save : CreateNoteCommand
 
@@ -85,9 +110,21 @@ sealed interface CreateNoteState {
 
     data class Create(
         val title: String = "",
-        val content: String = "",
-        val isSaveEnabled: Boolean = false
-    ) : CreateNoteState
+        val content: List<ContentItem> = listOf(ContentItem.Text(""))
+    ) : CreateNoteState {
+        val isSaveEnabled: Boolean
+            get() {
+                return when {
+                    title.isBlank() -> false
+                    content.isEmpty() -> false
+                    else -> {
+                        content.any {
+                            it !is ContentItem.Text || it.text.isNotBlank()
+                        }
+                    }
+                }
+            }
+    }
 
     data object Finished : CreateNoteState
 }
