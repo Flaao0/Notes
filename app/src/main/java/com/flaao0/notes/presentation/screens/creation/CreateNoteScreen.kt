@@ -211,7 +211,7 @@ private fun ImageContent(
     onDeleteImageClick: () -> Unit
 ) {
     Box(
-        modifier = modifier
+        modifier = modifier.padding(horizontal = 24.dp)
     ) {
         AsyncImage(
             modifier = Modifier
