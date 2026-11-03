@@ -58,6 +58,7 @@ fun CreateNoteScreen(
             uri?.let {
                 viewModel.processCommand(CreateNoteCommand.AddImage(it.toString()))
             }
+
         }
     )
 
@@ -154,7 +155,7 @@ fun CreateNoteScreen(
                                         ImageContent(
                                             url = item.url,
                                             onDeleteImageClick = {
-
+                                                viewModel.processCommand(CreateNoteCommand.DeleteImage(item.url))
                                             }
                                         )
                                     }

@@ -3,6 +3,7 @@ package com.flaao0.notes.presentation.screens.creation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.flaao0.notes.domain.entity.ContentItem
+import com.flaao0.notes.domain.entity.ContentItem.*
 import com.flaao0.notes.domain.usecases.AddNoteUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -72,22 +73,35 @@ class CreateNoteViewModel @Inject constructor(
                 }
 
             is CreateNoteCommand.AddImage -> {
-                viewModelScope.launch {
-                    _state.update { oldState ->
-                        if (oldState is CreateNoteState.Create) {
-                            val newItems = oldState.content.toMutableList()
-                            val lastItem = newItems.last()
-                            if (lastItem is ContentItem.Text && lastItem.text.isBlank()) {
-                                newItems.removeAt(newItems.lastIndex)
-                            }
-                            newItems.add(ContentItem.Image(command.uri))
-                            newItems.add(ContentItem.Text(""))
-                            oldState.copy(content = newItems)
-                        } else {
-                            oldState
+
+                _state.update { oldState ->
+                    if (oldState is CreateNoteState.Create) {
+                        val newItems = oldState.content.toMutableList()
+                        val lastItem = newItems.last()
+                        if (lastItem is ContentItem.Text && lastItem.text.isBlank()) {
+                            newItems.removeAt(newItems.lastIndex)
                         }
+                        newItems.add(Image(command.uri))
+                        newItems.add(Text(""))
+                        oldState.copy(content = newItems.toList())
+                    } else {
+                        oldState
                     }
                 }
+
+            }
+
+            is CreateNoteCommand.DeleteImage -> {
+                _state.update { oldState ->
+                    if (oldState is CreateNoteState.Create) {
+                        val newItems = oldState.content.toMutableList()
+                        newItems.remove(ContentItem.Image(url = command.uri))
+                        oldState.copy(content = newItems.toList())
+                    } else {
+                        oldState
+                    }
+                }
+
             }
         }
     }
@@ -100,6 +114,8 @@ sealed interface CreateNoteCommand {
     data class InputContent(val content: String, val index: Int) : CreateNoteCommand
 
     data class AddImage(val uri: String) : CreateNoteCommand
+
+    data class DeleteImage(val uri: String) : CreateNoteCommand
 
     data object Save : CreateNoteCommand
 
