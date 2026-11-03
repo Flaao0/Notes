@@ -48,6 +48,24 @@ class EditNoteViewModel @AssistedInject constructor(
             }
 
             is EditNoteCommand.InputContent -> {
+
+                _state.update { oldState ->
+                    if (oldState is EditNoteState.Editing) {
+                        val newContent = oldState.note.content
+                            .mapIndexed { index, item ->
+                                if (index == command.index && item is ContentItem.Text) {
+                                    item.copy(text = command.content)
+                                } else {
+                                    item
+                                }
+                            }
+                        val newNote: Note = oldState.note.copy(content = newContent)
+                        oldState.copy(note = newNote)
+                    } else {
+                        oldState
+                    }
+                }
+
                 _state.update { oldState ->
                     if (oldState is EditNoteState.Editing) {
                         val newContent = listOf(ContentItem.Text(command.content))
@@ -103,6 +121,22 @@ class EditNoteViewModel @AssistedInject constructor(
                     }
                 }
             }
+
+            is EditNoteCommand.DeleteImage -> {
+                _state.update { oldState ->
+                    if (oldState is EditNoteState.Editing) {
+                        val newContent = oldState.note.content.toMutableList().apply {
+                            remove(ContentItem.Image(command.uri))
+                        }.toList()
+                        val newNote = oldState.note.copy(
+                            content = newContent
+                        )
+                        oldState.copy(note = newNote)
+                    } else {
+                        oldState
+                    }
+                }
+            }
         }
     }
 }
@@ -111,9 +145,11 @@ sealed interface EditNoteCommand {
 
     data class InputTitle(val title: String) : EditNoteCommand
 
-    data class InputContent(val content: String) : EditNoteCommand
+    data class InputContent(val content: String, val index: Int) : EditNoteCommand
 
-    data object DeleteNote: EditNoteCommand
+    data class DeleteImage(val uri: String): EditNoteCommand
+
+    data object DeleteNote : EditNoteCommand
 
     data object Save : EditNoteCommand
 
@@ -122,7 +158,7 @@ sealed interface EditNoteCommand {
 
 sealed interface EditNoteState {
 
-    data object Initial: EditNoteState
+    data object Initial : EditNoteState
 
     data class Editing(
         val note: Note

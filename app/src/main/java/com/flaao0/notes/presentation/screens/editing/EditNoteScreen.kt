@@ -29,7 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.flaao0.notes.domain.entity.ContentItem
+import com.flaao0.notes.presentation.screens.components.Content
 import com.flaao0.notes.presentation.utils.DateFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -127,15 +127,16 @@ fun EditNoteScreen(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
-                    currentState.note.content.filterIsInstance<ContentItem.Text>().forEach { contentItem ->
-                        TextContent(
-                            modifier = Modifier.weight(1f),
-                            text = contentItem.text,
-                            onTextChanged = {
-                                viewmodel.processCommand(EditNoteCommand.InputContent(it))
-                            }
-                        )
-                    }
+                    Content(
+                        modifier = Modifier.weight(1f),
+                        content = currentState.note.content,
+                        onTextChanged = { content, index ->
+                            viewmodel.processCommand(EditNoteCommand.InputContent(content, index))
+                        },
+                        onDeleteImageClick = {
+                            viewmodel.processCommand(EditNoteCommand.DeleteImage(it))
+                        }
+                    )
 
                     Button(
                         modifier = Modifier
@@ -184,7 +185,7 @@ private fun TextContent(
             .fillMaxWidth()
             .padding(horizontal = 8.dp),
         value = text,
-        onValueChange = { onTextChanged },
+        onValueChange = { onTextChanged(it) },
         colors = TextFieldDefaults.colors(
             focusedContainerColor = Color.Transparent,
             unfocusedContainerColor = Color.Transparent,
