@@ -1,5 +1,7 @@
 package com.flaao0.notes.presentation.screens.creation
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,6 +30,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.flaao0.notes.presentation.screens.components.Content
+import com.flaao0.notes.presentation.ui.theme.CustomIcons
 import com.flaao0.notes.presentation.utils.DateFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,7 +44,19 @@ fun CreateNoteScreen(
 
     val state = viewModel.state.collectAsState()
 
+    val imagePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = { uri ->
+            uri?.let {
+                viewModel.processCommand(CreateNoteCommand.AddImage(it.toString()))
+            }
+
+        }
+    )
+
     when (val currentState = state.value) {
+
+
         is CreateNoteState.Create -> {
             Scaffold(
                 topBar = {
@@ -64,6 +80,18 @@ fun CreateNoteScreen(
                                 contentDescription = "Back"
                             )
                         },
+                        actions = {
+                            Icon(
+                                modifier = Modifier
+                                    .padding(end = 24.dp)
+                                    .clickable {
+                                        imagePicker.launch("image/*")
+                                    },
+                                imageVector = CustomIcons.AddPhoto,
+                                contentDescription = "Добавить изображение",
+                                tint = MaterialTheme.colorScheme.onSurface,
+                            )
+                        },
                         colors = TopAppBarDefaults.topAppBarColors(
                             containerColor = Color.Transparent,
                             navigationIconContentColor = MaterialTheme.colorScheme.onSurface
@@ -79,7 +107,7 @@ fun CreateNoteScreen(
                             .fillMaxWidth()
                             .padding(horizontal = 8.dp),
                         value = currentState.title,
-                        onValueChange = {viewModel.processCommand(CreateNoteCommand.InputTitle(it))},
+                        onValueChange = { viewModel.processCommand(CreateNoteCommand.InputTitle(it)) },
                         colors = TextFieldDefaults.colors(
                             focusedContainerColor = Color.Transparent,
                             unfocusedContainerColor = Color.Transparent,
@@ -108,29 +136,15 @@ fun CreateNoteScreen(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
-                    TextField(
+                    Content(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 8.dp)
                             .weight(1f),
-                        value = currentState.content,
-                        onValueChange = {viewModel.processCommand(CreateNoteCommand.InputContent(it))},
-                        colors = TextFieldDefaults.colors(
-                            focusedContainerColor = Color.Transparent,
-                            unfocusedContainerColor = Color.Transparent,
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent
-                        ),
-                        textStyle = TextStyle(
-                            fontSize = 16.sp,
-                            color = MaterialTheme.colorScheme.onSurface
-                        ),
-                        placeholder = {
-                            Text(
-                                text = "Введите что нибудь ниже...",
-                                fontSize = 16.sp,
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
-                            )
+                        content = currentState.content,
+                        onTextChanged = { content, index ->
+                            viewModel.processCommand(CreateNoteCommand.InputContent(content, index))
+                        },
+                        onDeleteImageClick = {
+                            viewModel.processCommand(CreateNoteCommand.DeleteImage(it))
                         }
                     )
 
@@ -157,6 +171,7 @@ fun CreateNoteScreen(
                 }
             }
         }
+
         CreateNoteState.Finished -> {
             LaunchedEffect(key1 = Unit) {
                 onFinished()

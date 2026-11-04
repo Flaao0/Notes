@@ -1,29 +1,29 @@
 package com.flaao0.notes.data.repository
 
-import android.content.Context
-import com.flaao0.notes.data.local.NotesDatabase
+import com.flaao0.notes.data.local.dao.NotesDao
 import com.flaao0.notes.data.local.entity.NoteDbModel
 import com.flaao0.notes.data.mappers.toDbModel
 import com.flaao0.notes.data.mappers.toEntity
+import com.flaao0.notes.domain.entity.ContentItem
 import com.flaao0.notes.domain.entity.Note
 import com.flaao0.notes.domain.repository.NotesRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class NotesRepositoryImpl private constructor(
-    notesDatabase: NotesDatabase
+    private val notesDao: NotesDao,
 ): NotesRepository {
-    private val notesDao = notesDatabase.notesDao()
 
     override suspend fun addNote(
         title: String,
-        content: String,
+        content: List<ContentItem>,
         updatedAt: Long,
         isPinned: Boolean
     ) {
-        val noteDbModel = NoteDbModel(
+        val note = Note(
             0, title, content, updatedAt, isPinned
         )
+        val noteDbModel = note.toDbModel()
         notesDao.addNote(
             noteDbModel
         )
@@ -65,13 +65,13 @@ class NotesRepositoryImpl private constructor(
         private var instance: NotesRepositoryImpl? = null
         private val lock = Any()
 
-        fun getInstance(notesDatabase: NotesDatabase): NotesRepositoryImpl {
+        fun getInstance(notesDao: NotesDao): NotesRepositoryImpl {
             instance?.let { return it }
 
             synchronized(lock) {
                 instance?.let { return it }
 
-                return NotesRepositoryImpl(notesDatabase).also {
+                return NotesRepositoryImpl(notesDao).also {
                     instance = it
                 }
             }

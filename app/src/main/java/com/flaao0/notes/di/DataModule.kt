@@ -2,6 +2,7 @@ package com.flaao0.notes.di
 
 import android.content.Context
 import com.flaao0.notes.data.local.NotesDatabase
+import com.flaao0.notes.data.local.dao.NotesDao
 import com.flaao0.notes.data.repository.NotesRepositoryImpl
 import com.flaao0.notes.domain.repository.NotesRepository
 import dagger.Binds
@@ -36,10 +37,18 @@ interface DataModule {
 
         @Singleton
         @Provides
-        fun provideRepository(
+        fun provideNotesDao(
             notesDatabase: NotesDatabase
+        ): NotesDao {
+            return notesDatabase.notesDao()
+        }
+
+        @Singleton
+        @Provides
+        fun provideRepository(
+            notesDao: NotesDao
         ): NotesRepositoryImpl {
-            return NotesRepositoryImpl.getInstance(notesDatabase)
+            return NotesRepositoryImpl.getInstance(notesDao)
         }
 
     }
