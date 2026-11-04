@@ -3,7 +3,6 @@ package com.flaao0.notes.presentation.screens.creation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.flaao0.notes.domain.entity.ContentItem
-import com.flaao0.notes.domain.entity.ContentItem.*
 import com.flaao0.notes.domain.usecases.AddNoteUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -81,8 +80,8 @@ class CreateNoteViewModel @Inject constructor(
                         if (lastItem is ContentItem.Text && lastItem.text.isBlank()) {
                             newItems.removeAt(newItems.lastIndex)
                         }
-                        newItems.add(Image(command.uri))
-                        newItems.add(Text(""))
+                        newItems.add(ContentItem.Image(command.uri))
+                        newItems.add(ContentItem.Text(""))
                         oldState.copy(content = newItems.toList())
                     } else {
                         oldState

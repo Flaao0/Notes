@@ -52,7 +52,10 @@ fun EditNoteScreen(
 
     val imagePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
-        onResult = {
+        onResult = {uri ->
+            uri?.let {
+                viewmodel.processCommand(EditNoteCommand.AddImage(it.toString()))
+            }
 
         }
     )
@@ -84,7 +87,7 @@ fun EditNoteScreen(
                         actions = {
                             Icon(
                                 modifier = Modifier
-                                    .padding(end = 24.dp)
+                                    .padding(end = 16.dp)
                                     .clickable {
                                         imagePicker.launch("image/*")
                                     },
@@ -94,7 +97,7 @@ fun EditNoteScreen(
                             )
                             Icon(
                                 modifier = Modifier
-                                    .padding(start = 16.dp, end = 8.dp)
+                                    .padding(end = 8.dp)
                                     .clickable {
                                         viewmodel.processCommand(EditNoteCommand.DeleteNote)
                                     },
