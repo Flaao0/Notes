@@ -1,6 +1,7 @@
 package com.flaao0.notes.di
 
 import android.content.Context
+import com.flaao0.notes.data.InternalFileManager
 import com.flaao0.notes.data.local.NotesDatabase
 import com.flaao0.notes.data.local.dao.NotesDao
 import com.flaao0.notes.data.repository.NotesRepositoryImpl
@@ -46,9 +47,10 @@ interface DataModule {
         @Singleton
         @Provides
         fun provideRepository(
-            notesDao: NotesDao
+            notesDao: NotesDao,
+            internalFileManager: InternalFileManager
         ): NotesRepositoryImpl {
-            return NotesRepositoryImpl.getInstance(notesDao)
+            return NotesRepositoryImpl.getInstance(notesDao, internalFileManager)
         }
 
     }
