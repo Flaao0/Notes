@@ -65,20 +65,6 @@ class EditNoteViewModel @AssistedInject constructor(
                         oldState
                     }
                 }
-
-                _state.update { oldState ->
-                    if (oldState is EditNoteState.Editing) {
-                        val newContent = listOf(ContentItem.Text(command.content))
-                        val newNote = oldState.note.copy(
-                            content = newContent
-                        )
-                        oldState.copy(
-                            note = newNote
-                        )
-                    } else {
-                        oldState
-                    }
-                }
             }
 
             is EditNoteCommand.InputTitle -> {
@@ -137,6 +123,26 @@ class EditNoteViewModel @AssistedInject constructor(
                     }
                 }
             }
+
+            is EditNoteCommand.AddImage -> {
+                _state.update { oldState ->
+                    if (oldState is EditNoteState.Editing) {
+                        val newItems = oldState.note.content.toMutableList()
+                        val lastItem = newItems.last()
+                        if (lastItem is ContentItem.Text && lastItem.text.isBlank()) {
+                            newItems.removeAt(newItems.lastIndex)
+                        }
+                        newItems.add(ContentItem.Image(command.uri))
+                        newItems.add(ContentItem.Text(""))
+                        val newNote = oldState.note.copy(
+                            content = newItems.toList()
+                        )
+                        oldState.copy(note = newNote)
+                    } else {
+                        oldState
+                    }
+                }
+            }
         }
     }
 }
@@ -148,6 +154,8 @@ sealed interface EditNoteCommand {
     data class InputContent(val content: String, val index: Int) : EditNoteCommand
 
     data class DeleteImage(val uri: String): EditNoteCommand
+
+    data class AddImage(val uri: String): EditNoteCommand
 
     data object DeleteNote : EditNoteCommand
 
