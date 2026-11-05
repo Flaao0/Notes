@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -30,15 +31,19 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import coil3.compose.AsyncImage
 import com.flaao0.notes.domain.entity.ContentItem
 import com.flaao0.notes.domain.entity.Note
 import com.flaao0.notes.presentation.ui.theme.OtherNotesColors
@@ -119,6 +124,7 @@ fun NotesScreen(
                             NoteCard(
                                 modifier = modifier.widthIn(max = 160.dp),
                                 note = note,
+                                isPinned = true,
                                 color = PinnedNotesColors[index % PinnedNotesColors.size],
                                 onNoteClick = onNoteClick,
                                 onLongClick = {
@@ -162,8 +168,7 @@ fun NotesScreen(
                     val titleText =
                         if (state.pinnedNotes.isNotEmpty()) "Остальные" else "Все заметки"
                     Subtitle(
-                        modifier = Modifier.padding(horizontal = 24.dp),
-                        text = titleText
+                        modifier = Modifier.padding(horizontal = 24.dp), text = titleText
                     )
                 }
             }
@@ -179,6 +184,7 @@ fun NotesScreen(
                         .padding(horizontal = 24.dp)
                         .fillMaxWidth(),
                     note = note,
+                    isPinned = false,
                     color = OtherNotesColors[index % OtherNotesColors.size],
                     onNoteClick = onNoteClick,
                     onLongClick = {
@@ -254,9 +260,19 @@ private fun NoteCard(
     modifier: Modifier = Modifier,
     note: Note,
     color: Color,
+    isPinned: Boolean,
     onNoteClick: (Note) -> Unit,
     onLongClick: (Note) -> Unit,
 ) {
+
+    val firstImage = remember(note.content) {
+        note.content.filterIsInstance<ContentItem.Image>().firstOrNull()
+    }
+    val textContent = remember(note.content) {
+        note.content.filterIsInstance<ContentItem.Text>().joinToString("\n") { it.text }
+            .takeIf { it.isNotBlank() }
+    }
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -267,38 +283,95 @@ private fun NoteCard(
             }, onLongClick = {
                 onLongClick(note)
             })
-            .padding(16.dp)
+
     ) {
+        if (firstImage?.url?.isNotEmpty() == true && !isPinned) {
+            Box(
+                contentAlignment = Alignment.BottomStart,
+            ) {
+                val url = firstImage.url
+
+                AsyncImage(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(8.dp)),
+                    model = url,
+                    contentDescription = "Изображение ",
+                    contentScale = ContentScale.FillWidth
+                )
+
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(
+                                    Color.Transparent,
+                                    Color.Black.copy(alpha = 0.7f) // или MaterialTheme.colorScheme.scrim / onSurface
+                                )
+                            )
+                        )
+                )
+
+                Column() {
+                    Text(
+                        modifier = Modifier.padding(start = 16.dp, bottom = 8.dp),
+                        text = note.title,
+                        color = MaterialTheme.colorScheme.background,
+                        fontSize = 18.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+
+                    Text(
+                        modifier = Modifier.padding(start = 16.dp, bottom = 16.dp),
+                        text = DateFormatter.formatDateToString(note.updatedAt),
+                        color = MaterialTheme.colorScheme.background,
+                        fontSize = 14.sp
+                    )
+                }
+            }
+            if (textContent?.isNotEmpty() == true) {
+                NoteContent(note = note)
+            }
+        } else {
+            Text(
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp),
+                text = note.title,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontSize = 14.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            Text(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                text = DateFormatter.formatDateToString(note.updatedAt),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontSize = 14.sp
+            )
+            NoteContent(note = note)
+        }
+    }
+}
+
+@Composable
+private fun NoteContent(
+    modifier: Modifier = Modifier,
+    note: Note
+) {
+    Spacer(modifier.height(24.dp))
+
+    note.content.filterIsInstance<ContentItem.Text>().joinToString("\n") { it.text }.let { it ->
         Text(
-            text = note.title,
+            modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+            text = it.trim(),
             color = MaterialTheme.colorScheme.onSurface,
             fontSize = 14.sp,
-            maxLines = 1,
+            fontWeight = FontWeight.Medium,
+            maxLines = 3,
             overflow = TextOverflow.Ellipsis
         )
-
-        Spacer(modifier.height(8.dp))
-
-        Text(
-            text = DateFormatter.formatDateToString(note.updatedAt),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            fontSize = 14.sp
-        )
-
-        Spacer(modifier.height(24.dp))
-
-        note.content.filterIsInstance<ContentItem.Text>()
-            .joinToString("\n")
-            { it.text }
-            .let {
-                Text(
-                    text = it,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
     }
 }
