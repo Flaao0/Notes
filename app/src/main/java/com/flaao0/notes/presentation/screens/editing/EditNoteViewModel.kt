@@ -113,6 +113,7 @@ class EditNoteViewModel @AssistedInject constructor(
                     if (oldState is EditNoteState.Editing) {
                         val newContent = oldState.note.content.toMutableList().apply {
                             remove(ContentItem.Image(command.uri))
+                            add(ContentItem.Text(""))
                         }.toList()
                         val newNote = oldState.note.copy(
                             content = newContent
@@ -128,7 +129,7 @@ class EditNoteViewModel @AssistedInject constructor(
                 _state.update { oldState ->
                     if (oldState is EditNoteState.Editing) {
                         val newItems = oldState.note.content.toMutableList()
-                        val lastItem = newItems.last()
+                        val lastItem = newItems.lastOrNull()
                         if (lastItem is ContentItem.Text && lastItem.text.isBlank()) {
                             newItems.removeAt(newItems.lastIndex)
                         }
