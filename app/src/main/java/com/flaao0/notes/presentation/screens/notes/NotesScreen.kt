@@ -35,6 +35,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -272,8 +273,6 @@ private fun NoteCard(
             .takeIf { it.isNotBlank() }
     }
 
-
-
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -288,7 +287,7 @@ private fun NoteCard(
     ) {
         if (firstImage?.url?.isNotEmpty() == true && !isPinned) {
             Box(
-                contentAlignment = Alignment.BottomStart
+                contentAlignment = Alignment.BottomStart,
             ) {
                 val url = firstImage.url
 
@@ -301,7 +300,21 @@ private fun NoteCard(
                     contentScale = ContentScale.FillWidth
                 )
 
-                Column {
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(
+                                    Color.Transparent,
+                                    Color.Black.copy(alpha = 0.7f) // или MaterialTheme.colorScheme.scrim / onSurface
+                                )
+                            )
+                        )
+                )
+
+                Column() {
                     Text(
                         modifier = Modifier.padding(start = 16.dp, bottom = 8.dp),
                         text = note.title,
@@ -320,9 +333,9 @@ private fun NoteCard(
                 }
             }
             if (textContent?.isNotEmpty() == true) {
-                        NoteContent(note = note)
-                    }
-        }  else {
+                NoteContent(note = note)
+            }
+        } else {
             Text(
                 modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp),
                 text = note.title,
@@ -338,11 +351,8 @@ private fun NoteCard(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 14.sp
             )
-
             NoteContent(note = note)
         }
-
-
     }
 }
 
@@ -353,15 +363,15 @@ private fun NoteContent(
 ) {
     Spacer(modifier.height(24.dp))
 
-        note.content.filterIsInstance<ContentItem.Text>().joinToString("\n") { it.text }.let { it ->
-            Text(
-                modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 8.dp),
-                text = it,
-                color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Medium,
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
+    note.content.filterIsInstance<ContentItem.Text>().joinToString("\n") { it.text }.let { it ->
+        Text(
+            modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+            text = it.trim(),
+            color = MaterialTheme.colorScheme.onSurface,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
 }
